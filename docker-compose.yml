@@ -1,0 +1,26 @@
+services:
+  postgres-db:
+    image: postgres:16 # O la versión que prefieras
+    container_name: postgres-db
+    ports:
+      - "5433:5432" # Expone el puerto 5433 de tu máquina para evitar conflictos
+    environment:
+      # Variables estándar de Postgres
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=tp-bdd
+      
+      # === Tu parámetro opcional ===
+      # Por defecto, no ejecuta el seeder
+      - RUN_SEEDER=${RUN_SEEDER:-false} 
+      
+    volumes:
+      # 1. Volumen para persistir los datos (esto es el "volumen de docker")
+      - postgres-data:/var/lib/postgresql/data
+      
+      # 2. Volumen para copiar tus scripts de inicialización
+      - ./postgres-init:/docker-entrypoint-initdb.d
+
+volumes:
+  # Define el volumen nombrado que usará Postgres
+  postgres-data:

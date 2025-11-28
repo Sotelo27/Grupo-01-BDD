@@ -12,7 +12,7 @@ services:
       
       # === Tu parámetro opcional ===
       # Por defecto, no ejecuta el seeder
-      - RUN_SEEDER=${RUN_SEEDER:-false} 
+      - RUN_SEEDER=${SEED:-false} 
       
     volumes:
       # 1. Volumen para persistir los datos (esto es el "volumen de docker")

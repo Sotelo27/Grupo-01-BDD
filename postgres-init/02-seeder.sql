@@ -5,7 +5,7 @@
 -- para probar las funcionalidades de la red social.
 
 -- 1. PAÍSES
--- Se insertan 3 países para poder agrupar usuarios.
+-- Se insertan 4 países para poder agrupar usuarios.
 INSERT INTO paises (id, nombre) VALUES
 (1, 'Argentina'),
 (2, 'Colombia'),
@@ -13,14 +13,14 @@ INSERT INTO paises (id, nombre) VALUES
 (4, 'México');
 
 -- 2. USUARIOS
--- Se insertan 5 usuarios de diferentes países.
+-- Se insertan 6 usuarios de diferentes países.
 INSERT INTO usuarios (correo_electronico, contrasenia, nombre, apellido, id_pais, nro_accesos) VALUES
-('ana.perez@example.com', 'pass1', 'Ana', 'Perez', 1, 15),
-('juan.garcia@example.com', 'pass12', 'Juan', 'Garcia', 2, 30),
-('sofia.lopez@example.com', 'pass123', 'Sofia', 'Lopez', 1, 5),
-('carlos.ruiz@example.com', 'pass1234', 'Carlos', 'Ruiz', 3, 22),
-('lucia.martin@example.com', 'pass12345', 'Lucia', 'Martin', 4, 10),
-('jose_martinez@gmail.com', 'pass123456', 'Jose', 'Martinez', 2, 10);
+    ('ana.perez@example.com', 'pass1', 'Ana', 'Perez', 1, 15),
+    ('juan.garcia@example.com', 'pass12', 'Juan', 'Garcia', 2, 30),
+    ('sofia.lopez@example.com', 'pass123', 'Sofia', 'Lopez', 1, 5),
+    ('carlos.ruiz@example.com', 'pass1234', 'Carlos', 'Ruiz', 3, 22),
+    ('lucia.martin@example.com', 'pass12345', 'Lucia', 'Martin', 4, 10),
+    ('jose_martinez@gmail.com', 'pass123456', 'Jose', 'Martinez', 2, 10);
 
 -- 3. AMISTADES
 -- Se crean amistades aceptadas y una solicitud pendiente.
@@ -28,7 +28,6 @@ INSERT INTO usuarios (correo_electronico, contrasenia, nombre, apellido, id_pais
 INSERT INTO amistades (usuario_1, usuario_2, estado) VALUES
 ('ana.perez@example.com', 'juan.garcia@example.com', 'aceptada'), -- Ana y Juan son amigos
 ('ana.perez@example.com', 'sofia.lopez@example.com', 'aceptada'), -- Ana y Sofia son amigas
-('carlos.ruiz@example.com', 'ana.perez@example.com', 'aceptada'),
 ('juan.garcia@example.com', 'sofia.lopez@example.com', 'aceptada'), -- Juan y Sofia son amigos
 ('carlos.ruiz@example.com', 'lucia.martin@example.com', 'solicitada'); -- Carlos envió una solicitud a Lucia
 
@@ -59,12 +58,13 @@ INSERT INTO publicaciones_textos_libres (id_publicacion, texto) VALUES
 (1, 'Qué día increíble para pasear por el parque.'),
 (4, 'Acabo de descubrir un framework de CSS increíble: Tailwind!');
 
-INSERT INTO publicaciones_imagenes (id_publicacion, url_imagen) VALUES
-(2, 'https://example.com/images/atardecer.jpg'),
-(5, 'https://example.com/images/poster_pelicula.jpg');
+-- Se cargan los archivos binarios desde la ruta absoluta dentro del contenedor
+INSERT INTO publicaciones_imagenes (id_publicacion, contenido_imagen) VALUES
+(2, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg')),
+(5, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg'));
 
-INSERT INTO publicaciones_videos (id_publicacion, url_video) VALUES
-(3, 'https://example.com/videos/mi_gato.mp4');
+INSERT INTO publicaciones_videos (id_publicacion, contenido_video) VALUES
+(3, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
 
 -- 6. PUBLICACIONES FAVORITAS
 -- Se marcan publicaciones como favoritas para probar la consulta de popularidad.

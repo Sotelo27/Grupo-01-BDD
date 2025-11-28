@@ -89,13 +89,13 @@ CREATE TABLE publicaciones_textos_libres (
 
 CREATE TABLE publicaciones_imagenes (
     id_publicacion INT PRIMARY KEY,
-    url_imagen VARCHAR(2047) NOT NULL,
+    contenido_imagen BYTEA NOT NULL,
     FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id) ON DELETE CASCADE
 );
 
 CREATE TABLE publicaciones_videos (
     id_publicacion INT PRIMARY KEY,
-    url_video VARCHAR(2047) NOT NULL,
+    contenido_video BYTEA NOT NULL,
     FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id) ON DELETE CASCADE
 );
 

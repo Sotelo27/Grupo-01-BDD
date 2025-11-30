@@ -1,109 +1,118 @@
--- =============================================
--- SEEDER SCRIPT
--- =============================================
--- Este script puebla la base de datos con datos de ejemplo
--- para probar las funcionalidades de la red social.
+-- 1. PAÍSES (sin id porque ya es SERIAL)
+INSERT INTO paises (nombre) VALUES
+                                ('Argentina'),
+                                ('Colombia'),
+                                ('España'),
+                                ('México');
 
--- 1. PAÍSES
--- Se insertan 4 países para poder agrupar usuarios.
-INSERT INTO paises (id, nombre) VALUES
-(1, 'Argentina'),
-(2, 'Colombia'),
-(3, 'España'),
-(4, 'México');
+-- (Opcional) capturar los IDs si los necesitás después
+WITH p AS (
+    SELECT id, nombre FROM paises
+)
+SELECT * FROM p;
 
--- 2. USUARIOS
--- Se insertan 6 usuarios de diferentes países.
+
+-- 2. USUARIOS (id_pais sigue siendo FK válido igual que antes)
 INSERT INTO usuarios (correo_electronico, contrasenia, nombre, apellido, id_pais, nro_accesos) VALUES
-    ('ana.perez@example.com', 'pass1', 'Ana', 'Perez', 1, 15),
-    ('juan.garcia@example.com', 'pass12', 'Juan', 'Garcia', 2, 30),
-    ('sofia.lopez@example.com', 'pass123', 'Sofia', 'Lopez', 1, 5),
-    ('carlos.ruiz@example.com', 'pass1234', 'Carlos', 'Ruiz', 3, 22),
-    ('lucia.martin@example.com', 'pass12345', 'Lucia', 'Martin', 4, 10),
-    ('jose_martinez@gmail.com', 'pass123456', 'Jose', 'Martinez', 2, 10);
+                                                                                                   ('ana.perez@example.com', 'pass1', 'Ana', 'Perez', 1, 15),
+                                                                                                   ('juan.garcia@example.com', 'pass12', 'Juan', 'Garcia', 2, 30),
+                                                                                                   ('sofia.lopez@example.com', 'pass123', 'Sofia', 'Lopez', 1, 5),
+                                                                                                   ('carlos.ruiz@example.com', 'pass1234', 'Carlos', 'Ruiz', 3, 22),
+                                                                                                   ('lucia.martin@example.com', 'pass12345', 'Lucia', 'Martin', 4, 10),
+                                                                                                   ('jose_martinez@gmail.com', 'pass123456', 'Jose', 'Martinez', 2, 10);
 
--- 3. AMISTADES
--- Se crean amistades aceptadas y una solicitud pendiente.
--- La restricción CHECK (usuario_1 < usuario_2) asegura el orden.
+
+-- 3. AMISTADES (queda igual, no usa id)
 INSERT INTO amistades (usuario_1, usuario_2, estado) VALUES
-('ana.perez@example.com', 'juan.garcia@example.com', 'aceptada'), -- Ana y Juan son amigos
-('ana.perez@example.com', 'sofia.lopez@example.com', 'aceptada'), -- Ana y Sofia son amigas
-('juan.garcia@example.com', 'sofia.lopez@example.com', 'aceptada'), -- Juan y Sofia son amigos
-('carlos.ruiz@example.com', 'lucia.martin@example.com', 'solicitada'); -- Carlos envió una solicitud a Lucia
+                                                         ('ana.perez@example.com', 'juan.garcia@example.com', 'aceptada'),
+                                                         ('ana.perez@example.com', 'sofia.lopez@example.com', 'aceptada'),
+                                                         ('juan.garcia@example.com', 'sofia.lopez@example.com', 'aceptada'),
+                                                         ('carlos.ruiz@example.com', 'lucia.martin@example.com', 'solicitada');
 
--- 4. GRUPOS Y MIEMBROS
--- Se crean dos grupos y se añaden usuarios a ellos.
-INSERT INTO grupos (id, nombre, categoria) VALUES
-(101, 'Amantes del Cine', 'Entretenimiento'),
-(102, 'Desarrollo Web', 'Tecnología');
 
+-- 4. GRUPOS (eran id manual, ahora es SERIAL → no enviamos id)
+WITH g AS (
+    INSERT INTO grupos (nombre, categoria) VALUES
+                                               ('Amantes del Cine', 'Entretenimiento'),
+                                               ('Desarrollo Web', 'Tecnología')
+        RETURNING id, nombre
+)
+SELECT * FROM g;
+
+-- Vincular usuarios a grupos usando IDs reales generados
+-- (Los id van a ser 1 y 2 salvo que ya tengas filas previas)
 INSERT INTO grupos_usuarios (correo_usuario, id_grupo) VALUES
-('ana.perez@example.com', 101),
-('juan.garcia@example.com', 101),
-('sofia.lopez@example.com', 102),
-('carlos.ruiz@example.com', 102),
-('juan.garcia@example.com', 102); -- Juan está en ambos grupos
+                                                           ('ana.perez@example.com', 1),
+                                                           ('juan.garcia@example.com', 1),
+                                                           ('sofia.lopez@example.com', 2),
+                                                           ('carlos.ruiz@example.com', 2),
+                                                           ('juan.garcia@example.com', 2);
 
--- 5. PUBLICACIONES
--- Se crean 5 publicaciones de diferentes tipos y autores.
-INSERT INTO publicaciones (id, usuario_creador, id_grupo) VALUES
-(1, 'ana.perez@example.com', NULL), -- Publicación de texto en el feed de Ana
-(2, 'juan.garcia@example.com', NULL), -- Publicación de imagen en el feed de Juan
-(3, 'sofia.lopez@example.com', NULL), -- Publicación de video en el feed de Sofia
-(4, 'carlos.ruiz@example.com', 102), -- Publicación de texto en el grupo 'Desarrollo Web'
-(5, 'juan.garcia@example.com', 101); -- Publicación de imagen "popular" en 'Amantes del Cine'
 
--- Se añade el contenido específico de cada publicación.
+-- 5. PUBLICACIONES (id era manual → ahora es SERIAL)
+WITH pub AS (
+    INSERT INTO publicaciones (usuario_creador, id_grupo) VALUES
+                                                              ('ana.perez@example.com', NULL),
+                                                              ('juan.garcia@example.com', NULL),
+                                                              ('sofia.lopez@example.com', NULL),
+                                                              ('carlos.ruiz@example.com', 2),
+                                                              ('juan.garcia@example.com', 1)
+        RETURNING id, usuario_creador
+)
+SELECT * FROM pub;
+
+-- Agregar contenido a las publicaciones usando su id real
 INSERT INTO publicaciones_textos_libres (id_publicacion, texto) VALUES
-(1, 'Qué día increíble para pasear por el parque.'),
-(4, 'Acabo de descubrir un framework de CSS increíble: Tailwind!');
+                                                                    (1, 'Qué día increíble para pasear por el parque.'),
+                                                                    (4, 'Acabo de descubrir un framework de CSS increíble: Tailwind!');
 
--- Se cargan los archivos binarios desde la ruta absoluta dentro del contenedor
 INSERT INTO publicaciones_imagenes (id_publicacion, contenido_imagen) VALUES
-(2, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg')),
-(5, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg'));
+                                                                          (2, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg')),
+                                                                          (5, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg'));
 
 INSERT INTO publicaciones_videos (id_publicacion, contenido_video) VALUES
-(3, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
+    (3, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
 
--- 6. PUBLICACIONES FAVORITAS
--- Se marcan publicaciones como favoritas para probar la consulta de popularidad.
+
+-- 6. PUBLICACIONES FAVORITAS (queda igual, usa FK a id creado)
 INSERT INTO publicaciones_favoritas (correo_usuario, id_publicacion) VALUES
--- La publicación 5 es la más popular
-('ana.perez@example.com', 5),
-('sofia.lopez@example.com', 5),
-('carlos.ruiz@example.com', 5),
--- Otras publicaciones con favoritos
-('juan.garcia@example.com', 1),
-('ana.perez@example.com', 2),
-('lucia.martin@example.com', 4);
+                                                                         ('ana.perez@example.com', 5),
+                                                                         ('sofia.lopez@example.com', 5),
+                                                                         ('carlos.ruiz@example.com', 5),
+                                                                         ('juan.garcia@example.com', 1),
+                                                                         ('ana.perez@example.com', 2),
+                                                                         ('lucia.martin@example.com', 4);
 
--- 7. MENSAJES
--- Se crean mensajes entre usuarios.
-INSERT INTO mensajes (id, correo_emisor, correo_receptor, contenido) VALUES
-(1, 'ana.perez@example.com', 'juan.garcia@example.com', 'Hola Juan! ¿Viste la nueva película?'),
-(2, 'juan.garcia@example.com', 'ana.perez@example.com', 'Hola Ana! Sí, la vi anoche. ¡Hablemos en el grupo!');
 
--- 8. NOTIFICACIONES
--- Se crean notificaciones para los 3 casos de uso del enunciado.
+-- 7. MENSAJES (sin enviar id, que se genere solo)
+INSERT INTO mensajes (correo_emisor, correo_receptor, contenido) VALUES
+                                                                     ('ana.perez@example.com', 'juan.garcia@example.com', 'Hola Juan! ¿Viste la nueva película?'),
+                                                                     ('juan.garcia@example.com', 'ana.perez@example.com', 'Hola Ana! Sí, la vi anoche. ¡Hablemos en el grupo!');
 
--- Caso 1: Solicitud de amistad (Carlos a Lucia)
-INSERT INTO notificaciones (id, tipo, contenido) VALUES
-(10, 'amistad', 'Carlos Ruiz quiere ser tu amigo.');
-INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario) VALUES
-(10, 'lucia.martin@example.com');
 
--- Caso 2: Nueva publicación de un amigo (Juan, amigo de Ana, publica la #2)
-INSERT INTO notificaciones (id, tipo, contenido) VALUES
-(11, 'publicacion_amigo', 'Tu amigo Juan Garcia ha realizado una nueva publicación.');
-INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario) VALUES
-(11, 'ana.perez@example.com');
+-- 8. NOTIFICACIONES (sin enviar id o usando RETURNING si las vas a referenciar)
+WITH n1 AS (
+    INSERT INTO notificaciones (tipo, contenido) VALUES
+                                                     ('amistad', 'Carlos Ruiz quiere ser tu amigo.')
+        RETURNING id
+)
+INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario)
+SELECT id, 'lucia.martin@example.com' FROM n1;
 
--- Caso 3: Nueva publicación en un grupo (Carlos publica en 'Desarrollo Web')
-INSERT INTO notificaciones (id, tipo, contenido) VALUES
-(12, 'publicacion_grupo', 'Hay una nueva publicación en el grupo Desarrollo Web.');
-INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario) VALUES
-(12, 'sofia.lopez@example.com'),
-(12, 'juan.garcia@example.com'); -- Se notifica a todos los miembros del grupo (excepto al autor)
+WITH n2 AS (
+    INSERT INTO notificaciones (tipo, contenido) VALUES
+                                                     ('publicacion_amigo', 'Tu amigo Juan Garcia ha realizado una nueva publicación.')
+        RETURNING id
+)
+INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario)
+SELECT id, 'ana.perez@example.com' FROM n2;
 
--- Fin del script
+WITH n3 AS (
+    INSERT INTO notificaciones (tipo, contenido) VALUES
+                                                     ('publicacion_grupo', 'Hay una nueva publicación en el grupo Desarrollo Web.')
+        RETURNING id
+)
+INSERT INTO notificaciones_usuarios (id_notificacion, correo_usuario)
+SELECT id, correo_usuario
+FROM n3, grupos_usuarios
+WHERE id_grupo = 2 AND correo_usuario <> 'carlos.ruiz@example.com';

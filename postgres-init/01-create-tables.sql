@@ -9,7 +9,7 @@ CREATE DOMAIN tipo_estado_amistad AS VARCHAR(10)
         );
 
 CREATE TABLE paises (
-                        id SERIAL PRIMARY KEY, -- ✅ Autoincremental
+                        id SERIAL PRIMARY KEY,
                         nombre VARCHAR(63) NOT NULL UNIQUE
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE amistades (
 );
 
 CREATE TABLE grupos (
-                        id SERIAL PRIMARY KEY, -- ✅ Autoincremental
+                        id SERIAL PRIMARY KEY,
                         nombre VARCHAR(255) NOT NULL,
                         categoria VARCHAR(128) NOT NULL
 );
@@ -48,7 +48,7 @@ CREATE TABLE grupos_usuarios (
 );
 
 CREATE TABLE notificaciones (
-                                id SERIAL PRIMARY KEY, -- ✅ Autoincremental
+                                id SERIAL PRIMARY KEY,
                                 tipo VARCHAR(31) NOT NULL,
                                 fecha DATE DEFAULT CURRENT_DATE,
                                 contenido VARCHAR(255) NOT NULL
@@ -63,7 +63,7 @@ CREATE TABLE notificaciones_usuarios (
 );
 
 CREATE TABLE mensajes (
-                          id SERIAL PRIMARY KEY, -- ✅ Autoincremental
+                          id SERIAL PRIMARY KEY,
                           contenido VARCHAR(1023) NOT NULL,
                           fecha DATE NOT NULL DEFAULT CURRENT_DATE,
                           correo_emisor tipo_correo_electronico NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE mensajes (
 );
 
 CREATE TABLE publicaciones (
-                               id SERIAL PRIMARY KEY, -- ✅ Autoincremental
+                               id SERIAL PRIMARY KEY,
                                fecha DATE DEFAULT CURRENT_DATE,
                                usuario_creador tipo_correo_electronico NOT NULL,
                                id_grupo INT,

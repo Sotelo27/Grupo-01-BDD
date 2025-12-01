@@ -11,17 +11,17 @@ SELECT nombre, apellido
 FROM usuarios;
 
 -- Listar todas las amistades de la red social
-SELECT usuario_1, usuario_2
+SELECT correo_usuario_1, correo_usuario_2
 FROM amistades;
 
 -- Listar los amigos de un usuario particular de la red social
-SELECT a.usuario_1
+SELECT a.correo_usuario_1
 FROM amistades a
-WHERE a.usuario_2 = 'ana.perez@example.com'
+WHERE a.correo_usuario_2 = 'ana.perez@example.com'
 UNION
-SELECT a.usuario_2
+SELECT a.correo_usuario_2
 FROM amistades a
-WHERE a.usuario_1 = 'ana.perez@example.com';
+WHERE a.correo_usuario_1 = 'ana.perez@example.com';
 
 -- Listar todos los mensajes de la red social
 SELECT contenido
@@ -30,11 +30,11 @@ FROM mensajes;
 -- Contar la cantidad de usuarios de cada pais
 SELECT p.nombre AS pais, COUNT(u.id_pais) AS cantidad_usuarios
 FROM paises p
-LEFT JOIN usuarios u ON p.id = u.id_pais
+LEFT JOIN usuarios u ON p.id_pais = u.id_pais
 GROUP BY p.nombre;
 
 -- Realizar una publicación tipo texto libre -- TODO: capaz para las claves subrogadas (por ej IDs) sea mejor usar SERIAL (no del estándar pero si de postgres) en lugar de INT para no tener problemas con la repetición de IDs
-INSERT INTO publicaciones (id, usuario_creador)
+INSERT INTO publicaciones (id_publicacion, correo_usuario_creador)
 VALUES (1, 'ana.perez@example.com');
 INSERT INTO publicaciones_textos_libres (id_publicacion, texto)
 VALUES (1, 'Ejemplo de texto libre');

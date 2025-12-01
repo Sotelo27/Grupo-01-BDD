@@ -51,11 +51,14 @@ SELECT id, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg')
 FROM p;
 -- ahora un select para ver que se hizo bien
 SELECT * FROM publicaciones p
-JOIN publicaciones_imagenes pi ON p.id = pi.id_publicacion;
+JOIN publicaciones_imagenes pi ON p.id_publicacion = pi.id_publicacion;
 
 -- TODO: Realizar una publicación (tipo video).
+INSERT INTO publicaciones (id_publicacion, usuario_creador, id_grupo)
+VALUES (102, 'ana.perez@example.com', NULL);
 
-    -- prar juli
+INSERT INTO publicaciones_videos (id_publicacion, contenido_video)
+VALUES (102, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
 
 -- TODO: Actualizar una publicación (tipo texto).
 UPDATE publicaciones_textos_libres
@@ -71,7 +74,10 @@ SET contenido_imagen = pg_read_binary_file('/docker-entrypoint-initdb.d/imagen_n
 WHERE id_publicacion = 2;
 
 -- TODO: Actualizar una publicación (tipo video).
-    -- para juli
+UPDATE publicaciones_videos
+SET contenido_video = pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv')
+WHERE id_publicacion = 102;
+
 -- TODO: Eliminar una publicación (tipo texto).
 DELETE FROM publicaciones_textos_libres
 WHERE id_publicacion = 1;
@@ -83,7 +89,8 @@ DELETE FROM publicaciones_imagenes
 WHERE id_publicacion = 2;
 
 -- TODO: Eliminar una publicación (tipo video).
-    -- para juli
+DELETE FROM publicaciones 
+WHERE id_publicacion = 102;
 
 -- TODO: Desregistrar a un usuario de la aplicación (dar un ejemplo).
 DELETE FROM usuarios
@@ -91,10 +98,10 @@ WHERE correo_electronico = 'lucia.martin@example.com';
 
 -- TODO: Mostrar las publicaciones más populares ordenadas por cantidad de “favoritos” que poseen.
 select * from publicaciones_favoritas;
-SELECT p.id id_publicacion , p.usuario_creador, COUNT(pf.correo_usuario) AS cantidad_favoritos
+SELECT p.id_publicacion id_publicacion , p.usuario_creador, COUNT(pf.correo_usuario) AS cantidad_favoritos
 FROM publicaciones p
-LEFT JOIN publicaciones_favoritas pf ON p.id = pf.id_publicacion
-GROUP BY p.id, p.usuario_creador
+LEFT JOIN publicaciones_favoritas pf ON p.id_publicacion = pf.id_publicacion
+GROUP BY p.id_publicacion, p.usuario_creador
 ORDER BY cantidad_favoritos DESC;
 
 
@@ -103,6 +110,6 @@ ORDER BY cantidad_favoritos DESC;
 SELECT u.correo_electronico, u.nombre, u.apellido, COUNT(pf.correo_usuario) AS cantidad_favoritos
 FROM usuarios u
 LEFT JOIN publicaciones p ON u.correo_electronico = p.usuario_creador
-LEFT JOIN publicaciones_favoritas pf ON p.id = pf.id_publicacion
+LEFT JOIN publicaciones_favoritas pf ON p.id_publicacion = pf.id_publicacion
 GROUP BY u.correo_electronico, u.nombre, u.apellido
 ORDER BY cantidad_favoritos DESC;

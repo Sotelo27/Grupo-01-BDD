@@ -21,13 +21,6 @@ CREATE TABLE usuarios (
     id_pais INT NOT NULL,
     nro_accesos INT DEFAULT 0,
     FOREIGN KEY (id_pais) REFERENCES paises(id_pais)
-                          correo_electronico tipo_correo_electronico PRIMARY KEY,
-                          contrasenia VARCHAR(255) NOT NULL,
-                          nombre VARCHAR(127) NOT NULL,
-                          apellido VARCHAR(127) NOT NULL,
-                          id_pais INT NOT NULL,
-                          nro_accesos INT DEFAULT 0,
-                          FOREIGN KEY (id_pais) REFERENCES paises(id_pais)
 );
 
 CREATE TABLE amistades (

@@ -1,18 +1,18 @@
--- 1. PAÍSES (sin id porque ya es SERIAL)
+-- 1. PAÍSES
 INSERT INTO paises (nombre) VALUES
                                 ('Argentina'),
                                 ('Colombia'),
                                 ('España'),
                                 ('México');
 
--- (Opcional) capturar los IDs si los necesitás después
+
 WITH p AS (
     SELECT id, nombre FROM paises
 )
 SELECT * FROM p;
 
 
--- 2. USUARIOS (id_pais sigue siendo FK válido igual que antes)
+-- 2. USUARIOS
 INSERT INTO usuarios (correo_electronico, contrasenia, nombre, apellido, id_pais, nro_accesos) VALUES
                                                                                                    ('ana.perez@example.com', 'pass1', 'Ana', 'Perez', 1, 15),
                                                                                                    ('juan.garcia@example.com', 'pass12', 'Juan', 'Garcia', 2, 30),
@@ -22,7 +22,7 @@ INSERT INTO usuarios (correo_electronico, contrasenia, nombre, apellido, id_pais
                                                                                                    ('jose_martinez@gmail.com', 'pass123456', 'Jose', 'Martinez', 2, 10);
 
 
--- 3. AMISTADES (queda igual, no usa id)
+-- 3. AMISTADES
 INSERT INTO amistades (usuario_1, usuario_2, estado) VALUES
                                                          ('ana.perez@example.com', 'juan.garcia@example.com', 'aceptada'),
                                                          ('ana.perez@example.com', 'sofia.lopez@example.com', 'aceptada'),
@@ -30,7 +30,7 @@ INSERT INTO amistades (usuario_1, usuario_2, estado) VALUES
                                                          ('carlos.ruiz@example.com', 'lucia.martin@example.com', 'solicitada');
 
 
--- 4. GRUPOS (eran id manual, ahora es SERIAL → no enviamos id)
+-- 4. GRUPOS 
 WITH g AS (
     INSERT INTO grupos (nombre, categoria) VALUES
                                                ('Amantes del Cine', 'Entretenimiento'),
@@ -40,7 +40,6 @@ WITH g AS (
 SELECT * FROM g;
 
 -- Vincular usuarios a grupos usando IDs reales generados
--- (Los id van a ser 1 y 2 salvo que ya tengas filas previas)
 INSERT INTO grupos_usuarios (correo_usuario, id_grupo) VALUES
                                                            ('ana.perez@example.com', 1),
                                                            ('juan.garcia@example.com', 1),
@@ -49,7 +48,7 @@ INSERT INTO grupos_usuarios (correo_usuario, id_grupo) VALUES
                                                            ('juan.garcia@example.com', 2);
 
 
--- 5. PUBLICACIONES (id era manual → ahora es SERIAL)
+-- 5. PUBLICACIONES 
 WITH pub AS (
     INSERT INTO publicaciones (usuario_creador, id_grupo) VALUES
                                                               ('ana.perez@example.com', NULL),
@@ -74,7 +73,7 @@ INSERT INTO publicaciones_videos (id_publicacion, contenido_video) VALUES
     (3, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
 
 
--- 6. PUBLICACIONES FAVORITAS (queda igual, usa FK a id creado)
+-- 6. PUBLICACIONES FAVORITAS 
 INSERT INTO publicaciones_favoritas (correo_usuario, id_publicacion) VALUES
                                                                          ('ana.perez@example.com', 5),
                                                                          ('sofia.lopez@example.com', 5),
@@ -84,13 +83,13 @@ INSERT INTO publicaciones_favoritas (correo_usuario, id_publicacion) VALUES
                                                                          ('lucia.martin@example.com', 4);
 
 
--- 7. MENSAJES (sin enviar id, que se genere solo)
+-- 7. MENSAJES 
 INSERT INTO mensajes (correo_emisor, correo_receptor, contenido) VALUES
                                                                      ('ana.perez@example.com', 'juan.garcia@example.com', 'Hola Juan! ¿Viste la nueva película?'),
                                                                      ('juan.garcia@example.com', 'ana.perez@example.com', 'Hola Ana! Sí, la vi anoche. ¡Hablemos en el grupo!');
 
 
--- 8. NOTIFICACIONES (sin enviar id o usando RETURNING si las vas a referenciar)
+-- 8. NOTIFICACIONES
 WITH n1 AS (
     INSERT INTO notificaciones (tipo, contenido) VALUES
                                                      ('amistad', 'Carlos Ruiz quiere ser tu amigo.')

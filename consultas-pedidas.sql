@@ -34,31 +34,36 @@ LEFT JOIN usuarios u ON p.id_pais = u.id_pais
 GROUP BY p.nombre;
 
 -- Realizar una publicación tipo texto libre
-INSERT INTO publicaciones (id_publicacion, correo_usuario_creador)
-VALUES (1, 'ana.perez@example.com');
+WITH p AS (
+  INSERT INTO publicaciones (usuario_creador, id_grupo)
+  VALUES ('ana.perez@example.com', NULL)
+  RETURNING id_publicacion
+)
 INSERT INTO publicaciones_textos_libres (id_publicacion, texto)
-VALUES (1, 'Ejemplo de texto libre');
-
+SELECT id_publicacion, 'Ejemplo de texto libre' FROM p;
 
 -- Realizar una publicación (tipo imagen).
 WITH p AS (
-INSERT INTO publicaciones (usuario_creador, id_grupo)
-VALUES ('ana.perez@example.com', NULL)
-    RETURNING id
-    )
+  INSERT INTO publicaciones (usuario_creador, id_grupo)
+  VALUES ('ana.perez@example.com', NULL)
+  RETURNING id_publicacion
+)
 INSERT INTO publicaciones_imagenes (id_publicacion, contenido_imagen)
-SELECT id, pg_read_binary_file('/docker-entrypoint-initdb.d/imagen.jpg')
+SELECT id_publicacion, decode('FFD8FFE0', 'hex')
 FROM p;
 -- Un select para ver que se hizo bien
 SELECT * FROM publicaciones p
 JOIN publicaciones_imagenes pi ON p.id_publicacion = pi.id_publicacion;
 
 -- Realizar una publicación (tipo video).
-INSERT INTO publicaciones (id_publicacion, usuario_creador, id_grupo)
-VALUES (102, 'ana.perez@example.com', NULL);
-
+WITH p AS (
+  INSERT INTO publicaciones (usuario_creador, id_grupo)
+  VALUES ('ana.perez@example.com', NULL)
+  RETURNING id_publicacion
+)
 INSERT INTO publicaciones_videos (id_publicacion, contenido_video)
-VALUES (102, pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv'));
+SELECT id_publicacion, decode('00000001', 'hex')
+FROM p;
 
 -- Actualizar una publicación (tipo texto).
 UPDATE publicaciones_textos_libres
@@ -68,15 +73,15 @@ WHERE id_publicacion = 1;
 SELECT * FROM publicaciones_textos_libres;
 
 -- Actualizar una publicación (tipo imagen).
-select * from publicaciones_imagenes;
+SELECT * FROM publicaciones_imagenes;
 UPDATE publicaciones_imagenes
-SET contenido_imagen = pg_read_binary_file('/docker-entrypoint-initdb.d/imagen_new.jpg')
+SET contenido_imagen = decode('FFD8FFE1', 'hex')
 WHERE id_publicacion = 2;
 
 -- Actualizar una publicación (tipo video).
 UPDATE publicaciones_videos
-SET contenido_video = pg_read_binary_file('/docker-entrypoint-initdb.d/2025-11-17 18-13-52.mkv')
-WHERE id_publicacion = 102;
+SET contenido_video = decode('00000002', 'hex')
+WHERE id_publicacion = (SELECT MAX(id_publicacion) FROM publicaciones_videos);
 
 -- Eliminar una publicación (tipo texto).
 DELETE FROM publicaciones_textos_libres
@@ -90,7 +95,7 @@ WHERE id_publicacion = 2;
 
 -- Eliminar una publicación (tipo video).
 DELETE FROM publicaciones 
-WHERE id_publicacion = 102;
+WHERE id_publicacion = (SELECT MAX(id_publicacion) FROM publicaciones_videos);
 
 -- Desregistrar a un usuario de la aplicación (dar un ejemplo).
 DELETE FROM usuarios
